@@ -281,7 +281,7 @@ const UrlCreator: NextPage = (): JSX.Element => {
           fontWeight={500}
           gutterBottom
         >
-          Test Taker's Information:
+          {"Test Taker's Information:"}
         </Typography>
       </Box>
       <Box
@@ -389,7 +389,7 @@ const UrlCreator: NextPage = (): JSX.Element => {
         fontWeight={500}
         gutterBottom
       >
-        Test Taker's url for proctoring:
+        {"Test Taker's url for proctoring:"}
       </Typography>
       <Box
         sx={{
