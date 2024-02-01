@@ -2,9 +2,9 @@
 
 import { createUserProfile } from "@/_features/apiServices";
 import { useStateContext } from "@/_features/context";
+import { generateUuid, getInvokeUrl } from "@/_features/helpers";
 import { RestartAltOutlined } from "@mui/icons-material";
 import AddIcon from "@mui/icons-material/Add";
-import {} from "react-hook-form";
 import {
   Button,
   IconButton,
@@ -19,7 +19,6 @@ import dayjs from "dayjs";
 import { NextPage } from "next";
 import { useState } from "react";
 import DialogComponent from "../dialog-component";
-import { generateUuid, getInvokeUrl } from "@/_features/helpers";
 
 const textBoxSize = "20rem";
 const blue = {
@@ -143,7 +142,7 @@ const UrlCreator: NextPage = (): JSX.Element => {
     mutationFn: async (userDetail: UserProfile) => {
       return (await createUserProfile(userDetail)).data;
     },
-    onSuccess: async (data: UserProfile): Promise<UserProfile> => {
+    onSuccess: async (data: UserProfile[]): Promise<UserProfile[]> => {
       return data;
     },
     onError: async (err): Promise<boolean> => {
@@ -155,7 +154,7 @@ const UrlCreator: NextPage = (): JSX.Element => {
   const handleCreateProfile = async (
     user: StudentDetails,
     guid: string
-  ): Promise<UserProfile> => {
+  ): Promise<UserProfile[]> => {
     const id = generateUuid();
     const profilePayload: UserProfile = {
       idLtiStudentProfile: "",
@@ -182,6 +181,12 @@ const UrlCreator: NextPage = (): JSX.Element => {
     return profile;
   };
 
+  const handleInvokeUrl = (idx: number) => {
+    const student = { ...state.students[idx] };
+
+    window.open(student.invokeUrl, "_blank");
+  };
+
   const handleCreateUrl = async (idx: number) => {
     if (!state.selectedInstitute) return;
     let allTestTakers = [...state.students];
@@ -202,7 +207,7 @@ const UrlCreator: NextPage = (): JSX.Element => {
       courseName: "",
       assignmentId: "",
       assignmentName: "",
-      studentId: profile.idUser,
+      studentId: profile[0].idUser,
       assgnDueDt: "",
       assgnExpDt: "",
       duration: "",
@@ -281,7 +286,7 @@ const UrlCreator: NextPage = (): JSX.Element => {
           fontWeight={500}
           gutterBottom
         >
-          {"Test Taker's Information:"}
+          Test Taker&apos;s Information:
         </Typography>
       </Box>
       <Box
@@ -371,6 +376,7 @@ const UrlCreator: NextPage = (): JSX.Element => {
               <Button
                 variant="contained"
                 size="small"
+                onClick={() => handleInvokeUrl(index)}
                 disabled={canInvoke ? false : true}
               >
                 Invoke Url
@@ -389,7 +395,7 @@ const UrlCreator: NextPage = (): JSX.Element => {
         fontWeight={500}
         gutterBottom
       >
-        {"Test Taker's url for proctoring:"}
+        Test Taker&apos;s url for proctoring:
       </Typography>
       <Box
         sx={{

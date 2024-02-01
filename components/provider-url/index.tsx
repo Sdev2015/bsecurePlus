@@ -88,7 +88,7 @@ const ProviderUrl: NextPage<ProviderUrlProps> = ({
         fontWeight={500}
         gutterBottom
       >
-        {"Test Provider's url for proctoring:"}
+        Test Provider&apos;s url for proctoring:
       </Typography>
       <Box
         sx={{
