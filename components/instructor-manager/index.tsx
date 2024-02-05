@@ -2,35 +2,21 @@
 
 import { useStateContext } from "@/_features/context";
 import {
-  Checkbox,
   FormControl,
-  FormControlLabel,
   FormHelperText,
   Grid,
   InputLabel,
   MenuItem,
   Select,
   TextField,
-  Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
 import { NextPage } from "next";
-import { useState } from "react";
 
 const InstructorAndManager: NextPage = (): JSX.Element => {
   const { state, dispatch } = useStateContext();
-  const [fieldErrors, setFieldErrors] =
-    useState<InstructorManagerDetailFieldErrors>({
-      profile: false,
-      assgnDate: false,
-      assgnExpDate: false,
-      jobUrl: false,
-      phone: false,
-      email: false,
-      duration: false,
-    });
 
   return (
     <Box
@@ -39,72 +25,19 @@ const InstructorAndManager: NextPage = (): JSX.Element => {
         flexDirection: "column",
         alignItems: "center",
         height: "100%",
-        width: "100%",
         gap: 5,
       }}
+      width={"100%"}
     >
-      <FormControl size="small" sx={{ m: 1, width: "50%" }}>
-        <InputLabel id="instructor-manager">Instructor/ Manager</InputLabel>
-        <Select
-          labelId="instructor-manager"
-          id="instructor-manager-select"
-          value={state.selectedProfile?.idUser}
-          label="Instructor/ Manager"
-          onChange={(e) => {
-            if (state.profiles)
-              dispatch({
-                type: "SELECT_INSTRUCTOR_MANAGER",
-                payload: state.profiles[e.target.value],
-              });
-          }}
-        >
-          {!state.profiles ? (
-            <MenuItem value={""}>No profiles</MenuItem>
-          ) : (
-            Object.entries(state.profiles).map(
-              ([key, value], index: number) => {
-                const role = value.userType.toLowerCase();
-                const roleText =
-                  role.indexOf("instr") !== -1 || role.indexOf("teacher") !== -1
-                    ? "Teacher"
-                    : "Manager";
-                return (
-                  <MenuItem value={key} key={index}>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        width: "100%",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Typography variant="subtitle1">
-                        {value.firstName} {value.lastName}
-                      </Typography>
-                      <Typography
-                        variant="subtitle1"
-                        sx={{ marginLeft: "auto" }}
-                      >
-                        {roleText}
-                      </Typography>
-                    </Box>
-                  </MenuItem>
-                );
-              }
-            )
-          )}
-        </Select>
-        <FormHelperText>Select an instructor/ manager</FormHelperText>
-      </FormControl>
       <Grid
         container
         rowSpacing={2}
-        columnSpacing={10}
+        columnSpacing={{ xs: 0, sm: 0, md: 5, lg: 10 }}
         direction={"row"}
         justifyContent={"center"}
-        width={"50%"}
         alignItems={"center"}
       >
-        <Grid item container xs={12} lg={6} justifyContent={"end"}>
+        <Grid item container xs={12} lg={6} justifyContent={"center"}>
           <DatePicker
             label="Assignment Date/Time"
             sx={{ width: "100%" }}
@@ -179,6 +112,11 @@ const InstructorAndManager: NextPage = (): JSX.Element => {
               size="small"
               labelId="duration-test"
               fullWidth
+              slotProps={{
+                input: {
+                  width: "100%",
+                },
+              }}
               sx={{ width: "100%" }}
               id="duration-test-select"
               value={state.assignmentSchedulingDetails.duration}
@@ -216,7 +154,7 @@ const InstructorAndManager: NextPage = (): JSX.Element => {
           />
         </Grid>
       </Grid>
-      <Box
+      {/* <Box
         sx={{
           display: "flex",
           flexDirection: "row",
@@ -246,7 +184,7 @@ const InstructorAndManager: NextPage = (): JSX.Element => {
           label="Copy email to me"
           disabled
         />
-      </Box>
+      </Box> */}
     </Box>
   );
 };

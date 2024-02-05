@@ -7,24 +7,30 @@ import {
 } from "@/_features/apiServices";
 import { useStateContext } from "@/_features/context";
 import { getInvokeUrl } from "@/_features/helpers";
-import CourseAndAssignment from "@/components/course-and-assignment";
-import InstituteDetails from "@/components/institut-details";
-import InstructorAndManager from "@/components/instructor-manager";
-import ProviderUrl from "@/components/provider-url";
 import {
-  Divider,
+  Box,
+  Button,
+  Card,
+  CardActionArea,
   FormControl,
   FormHelperText,
   Grid,
   InputLabel,
   MenuItem,
   Select,
+  Typography,
 } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { NextPage } from "next";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import CourseAndAssignment from "../course-and-assignment";
+import SelectInstructor from "../select-instructor";
+import UrlCreator from "../url-creator";
 
 export const LauncherForm: NextPage = (): JSX.Element => {
+  const [userFormType, setUserFormType] = useState<
+    "PROCTOR" | "STUDENT" | undefined
+  >(undefined);
   const { state, dispatch } = useStateContext();
 
   const getInstitutes = useMutation({
@@ -68,6 +74,7 @@ export const LauncherForm: NextPage = (): JSX.Element => {
   });
 
   const getUserProfiles = useMutation({
+    mutationKey: ["get-user-profiles"],
     mutationFn: async (guid: string) => {
       return (await getUserProfilesByGuid(guid)).data;
     },
@@ -113,8 +120,6 @@ export const LauncherForm: NextPage = (): JSX.Element => {
       ]);
     }
   };
-
-  const handleCreateUrl = () => {};
 
   const handleInvokeUrl = () => {
     const { newCourseAssignment, selectedInstitute, selectedProfile } = state;
@@ -194,35 +199,199 @@ export const LauncherForm: NextPage = (): JSX.Element => {
   }
 
   return (
-    <Grid container justifyContent="center" spacing={2} padding={5} rowGap={5}>
-      <FormControl
-        variant="outlined"
-        sx={{ m: 1, minWidth: "50%" }}
-        size="small"
+    <Grid
+      container
+      sx={{
+        height: "100%",
+        width: "100%",
+      }}
+      justifyContent={"center"}
+      alignSelf={"center"}
+      gap={5}
+      marginY={5}
+    >
+      <Box
+        sx={{
+          width: "80%",
+          height: "100%",
+          display: "flex",
+          justifyContent: "center",
+        }}
       >
-        <InputLabel id="select-institute">Insitute</InputLabel>
-        <Select
-          value={state.selectedInstitute?.instituteName || undefined}
-          onChange={(event) => {
-            handleInstituteSelect(event.target.value);
+        <FormControl
+          variant="outlined"
+          sx={{
+            m: 1,
+            width: { xs: "90%", sm: "90%", md: "60%", lg: "50%" },
           }}
-          fullWidth
-          label="Insitute"
+          size="small"
         >
-          {instituteOptions.map(
-            (institute: InstituteDetails, index: number) => (
-              <MenuItem value={institute.instituteId.toString()} key={index}>
-                {institute.instituteName}
-              </MenuItem>
-            )
+          <InputLabel id="select-institute">Insitute</InputLabel>
+          <Select
+            value={state.selectedInstitute?.instituteName || undefined}
+            onChange={(event) => {
+              handleInstituteSelect(event.target.value);
+            }}
+            fullWidth
+            label="Insitute"
+            sx={{
+              width: "100%",
+              display: "flex",
+              marginX: "auto",
+            }}
+          >
+            {instituteOptions.map(
+              (institute: InstituteDetails, index: number) => (
+                <MenuItem value={institute.instituteId.toString()} key={index}>
+                  {institute.instituteName}
+                </MenuItem>
+              )
+            )}
+          </Select>
+          <FormHelperText>Select your institute</FormHelperText>
+        </FormControl>
+      </Box>
+      <Box
+        display={"flex"}
+        flexDirection={"column"}
+        height={"100%"}
+        width={"80%"}
+        flexWrap={"wrap"}
+        gap={5}
+      >
+        <Box
+          display={"flex"}
+          flexDirection={"row"}
+          width={"100%"}
+          justifyContent={"space-between"}
+          flexWrap={"wrap"}
+          gap={{ xs: 5, sm: 5 }}
+        >
+          {!userFormType ? (
+            <Typography variant="h6" color={"#008080"} fontWeight={700}>
+              Configure proctoring for: {userFormType}
+            </Typography>
+          ) : (
+            <Typography variant="h6" color={"#008080"} fontWeight={700}>
+              Configuration for: {userFormType}
+            </Typography>
           )}
-        </Select>
-        <FormHelperText>Select an institute</FormHelperText>
-      </FormControl>
-      {state.selectedInstitute && (
+          {userFormType && (
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={(_) => {
+                if (userFormType === "PROCTOR") {
+                  setUserFormType("STUDENT");
+                } else {
+                  setUserFormType("PROCTOR");
+                }
+              }}
+            >
+              Configure proctoring for{" "}
+              {userFormType === "PROCTOR" ? "student" : "proctor"}
+            </Button>
+          )}
+        </Box>
+        {!userFormType && (
+          <Box
+            display={"flex"}
+            flexDirection={"row"}
+            width={"100%"}
+            height={"100%"}
+            justifyContent={"space-between"}
+            flexWrap={"wrap"}
+            gap={5}
+          >
+            <Card
+              variant="outlined"
+              sx={{
+                height: "150px",
+                width: "40%",
+              }}
+            >
+              <CardActionArea
+                sx={{
+                  height: "100%",
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+                onClick={(e) => {
+                  setUserFormType("PROCTOR");
+                }}
+              >
+                <Typography
+                  variant="subtitle2"
+                  fontSize={20}
+                  fontWeight={"bold"}
+                >
+                  Instructor / Manager
+                </Typography>
+              </CardActionArea>
+            </Card>
+            <Card
+              variant="outlined"
+              sx={{
+                height: "150px",
+                width: "40%",
+              }}
+            >
+              <CardActionArea
+                sx={{
+                  height: "100%",
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+                onClick={(e) => {
+                  setUserFormType("STUDENT");
+                }}
+              >
+                <Typography
+                  variant="subtitle2"
+                  fontSize={20}
+                  fontWeight={"bold"}
+                >
+                  Student
+                </Typography>
+              </CardActionArea>
+            </Card>
+          </Box>
+        )}
+        {userFormType === "PROCTOR" && <SelectInstructor />}
+        {userFormType && <CourseAndAssignment />}
+        {userFormType === "STUDENT" && <UrlCreator />}
+        {userFormType === "PROCTOR" && (
+          <Button
+            size="small"
+            variant="contained"
+            onClick={handleInvokeUrl}
+            sx={{ width: "auto", marginX: "auto" }}
+          >
+            Invoke Url
+          </Button>
+        )}
+      </Box>
+      {/* {state.selectedInstitute && (
         <InstituteDetails institute={state.selectedInstitute} />
-      )}
-      <Divider
+      )} */}
+      {/* <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          width: "100%",
+          height: "100%",
+          justifyContent: "space-evenly",
+          flexWrap: "wrap",
+        }}
+      >
+        <Card sx={{ minWidth: "50%", height: "50%" }}>Instructor</Card>
+        <Card sx={{ minWidth: "50%", height: "50%" }}>Student</Card>
+      </Box> */}
+      {/* <Divider
         variant="middle"
         orientation="horizontal"
         component={"area"}
@@ -246,7 +415,7 @@ export const LauncherForm: NextPage = (): JSX.Element => {
         color="#997a8d"
       />
 
-      <ProviderUrl createUrl={handleCreateUrl} invokeUrl={handleInvokeUrl} />
+      <ProviderUrl createUrl={handleCreateUrl} invokeUrl={handleInvokeUrl} /> */}
     </Grid>
   );
 };
