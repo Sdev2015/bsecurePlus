@@ -2,7 +2,11 @@
 
 import { createUserProfile } from "@/_features/apiServices";
 import { useStateContext } from "@/_features/context";
-import { generateUuid, getInvokeUrl } from "@/_features/helpers";
+import {
+  generateRandom4DigitNumber,
+  generateUuid,
+  getInvokeUrl,
+} from "@/_features/helpers";
 import { RestartAltOutlined } from "@mui/icons-material";
 import AddIcon from "@mui/icons-material/Add";
 import {
@@ -137,8 +141,9 @@ const UrlCreator: NextPage = (): JSX.Element => {
       state.selectedInstitute.guid
     );
     setIsLoading(false);
-    const { newCourseAssignment } = state;
-    const payload: GenerateInvokeUrlPayload = {
+    const { newCourseAssignment, newCourse, newAssignment } = state;
+
+    let payload: GenerateInvokeUrlPayload = {
       institute: state.selectedInstitute,
       course: undefined,
       quiz: undefined,
@@ -154,42 +159,81 @@ const UrlCreator: NextPage = (): JSX.Element => {
       phone: testTakerDetail.phone,
       email: testTakerDetail.email,
       newCourseAndAssignment: false,
+      courseStartDate: "",
     };
 
-    if (newCourseAssignment) {
-      const {
-        newCourseAndAssignmentDetails: {
-          courseId,
-          courseName,
-          assignmentId,
-          assignmentTitle,
-        },
-        assignmentSchedulingDetails: { dueDate, duration, expDate },
-      } = state;
+    // if (newCourseAssignment) {
+    //   const {
+    //     newCourseAndAssignmentDetails: {
+    //       courseId,
+    //       courseName,
+    //       assignmentId,
+    //       assignmentTitle,
+    //     },
+    //     assignmentSchedulingDetails: { dueDate, duration, expDate },
+    //   } = state;
 
-      payload.courseId = courseId;
-      payload.courseName = courseName;
-      payload.assignmentId = assignmentId;
-      payload.assignmentName = assignmentTitle;
-      payload.assgnDueDt = dueDate;
-      payload.assgnExpDt = expDate;
-      payload.duration = duration;
-    } else {
+    //   payload.courseId = courseId;
+    //   payload.courseName = courseName;
+    //   payload.assignmentId = assignmentId;
+    //   payload.assignmentName = assignmentTitle;
+    //   payload.assgnDueDt = dueDate;
+    //   payload.assgnExpDt = expDate;
+    //   payload.duration = duration;
+    // } else {
+    //   const {
+    //     selectedCourses,
+    //     selectedQuiz,
+    //     assignmentSchedulingDetails: { dueDate, duration, expDate },
+    //   } = state;
+    //   if (selectedCourses && selectedQuiz) {
+    //     payload.course = selectedCourses;
+    //     payload.quiz = selectedQuiz;
+    //     payload.assgnDueDt = dueDate;
+    //     payload.assgnExpDt = expDate;
+    //     payload.duration = duration;
+    //   }
+    // }
+
+    if (newCourse) {
       const {
-        selectedCourses,
-        selectedQuiz,
-        assignmentSchedulingDetails: { dueDate, duration, expDate },
+        newCourseDetails: { name, startDate },
+        newAssignmentDetails,
       } = state;
-      if (selectedCourses && selectedQuiz) {
+      const courseId = generateRandom4DigitNumber();
+      const quizId = generateRandom4DigitNumber();
+      payload.courseId = courseId.toString();
+      payload.courseName = name;
+      payload.studentId = profile[0].idUser;
+      payload.assignmentId = quizId.toString();
+      payload.assignmentName = newAssignmentDetails.name;
+      payload.assgnDueDt = newAssignmentDetails.startDate;
+      payload.assgnExpDt = newAssignmentDetails.endDate;
+      payload.duration = newAssignmentDetails.duration;
+      payload.newCourseAndAssignment = true;
+      payload.courseStartDate = startDate;
+    } else {
+      if (newAssignment) {
+        const {
+          newAssignmentDetails: { name, startDate, endDate, duration },
+          selectedCourses,
+        } = state;
         payload.course = selectedCourses;
-        payload.quiz = selectedQuiz;
-        payload.assgnDueDt = dueDate;
-        payload.assgnExpDt = expDate;
+        payload.assignmentId = generateUuid();
+        payload.assignmentName = name;
+        payload.assgnDueDt = startDate;
+        payload.assgnExpDt = endDate;
         payload.duration = duration;
+      } else {
+        const { selectedQuiz, selectedCourses } = state;
+        payload.quiz = selectedQuiz;
+        payload.course = selectedCourses;
+        payload.courseStartDate =
+          selectedCourses?.startDate || dayjs().toISOString();
       }
     }
 
-    testTakerDetail.invokeUrl = getInvokeUrl(payload);
+    testTakerDetail.invokeUrl = getInvokeUrl(payload, state);
     allTestTakers[idx] = testTakerDetail;
     dispatch({ type: "ADD_UPDATE_STUDENT", payload: allTestTakers });
   };
