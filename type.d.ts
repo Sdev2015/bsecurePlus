@@ -315,6 +315,35 @@ type StudentDetails = {
   invokeUrl: string;
 };
 
+type NewCourse = { name: string; startDate: string; endDate: string };
+type NewAssignment = {
+  name: string;
+  startDate: string;
+  endDate: string;
+  duration: string;
+  url: string;
+};
+
+type AddNewCourseAction = {
+  type: "ADD_NEW_COURSE";
+  payload: NewCourse;
+};
+
+type AddNewAssignmentAction = {
+  type: "ADD_NEW_ASSIGNMENT";
+  payload: NewAssignment;
+};
+
+type ToogleNewCourseAction = {
+  type: "TOOGLE_NEW_COURSE";
+  payload: boolean;
+};
+
+type ToogleNewAssignmentAction = {
+  type: "TOOGLE_NEW_ASSIGNMENT";
+  payload: boolean;
+};
+
 type InitialState = {
   institute: { [key: string]: InstituteDetails } | undefined;
   courses: { [key: string]: CourseDetail } | undefined;
@@ -329,9 +358,67 @@ type InitialState = {
   otherDetails: OtherDetails;
   newCourseAssignment: boolean;
   students: StudentDetails[];
+  newCourse: boolean;
+  newAssignment: boolean;
+  newCourseDetails: NewCourse;
+  newAssignmentDetails: NewAssignment;
+};
+
+type GenerateInvokeUrlPayload = {
+  institute: InstituteDetails;
+  course: CourseDetail | undefined;
+  quiz: QuizDetail | undefined;
+  profile: UserProfile | undefined;
+  courseId: string;
+  courseStartDate: string;
+  courseName: string;
+  assignmentId: string;
+  assignmentName: string;
+  studentId: string;
+  assgnDueDt: string;
+  assgnExpDt: string;
+  duration: string;
+  phone: string;
+  email: string;
+  newCourseAndAssignment: boolean;
+};
+
+type CreateCourse = {
+  courseId: number;
+  guid: string;
+  section: string;
+  shortName: string;
+  longName: string;
+  description: string;
+  status: number;
+  startDate: string;
+  endDate: string;
+};
+
+type CreateQuiz = {
+  createdBy: string;
+  quizId: string;
+  guid: string;
+  courseId: number;
+  section: string;
+  shortName: string;
+  longName: string;
+  description: string;
+  status: number;
+  duration: number;
+  allowedAttempts: number;
+  dueDate: string;
+  accessCode: number;
+  startDate: string;
+  endDate: string;
+  quizType: string;
 };
 
 type ReducerActions =
+  | AddNewCourseAction
+  | AddNewAssignmentAction
+  | ToogleNewCourseAction
+  | ToogleNewAssignmentAction
   | AddAllInstitutesAction
   | SelectInstitute
   | AddAllCoursesAction
@@ -356,21 +443,3 @@ type ReducerActions =
   | SetPhoneAction
   | SetEmailAction
   | AddUpdateStudentAction;
-
-type GenerateInvokeUrlPayload = {
-  institute: InstituteDetails;
-  course: CourseDetail | undefined;
-  quiz: QuizDetail | undefined;
-  profile: UserProfile | undefined;
-  courseId: string;
-  courseName: string;
-  assignmentId: string;
-  assignmentName: string;
-  studentId: string;
-  assgnDueDt: string;
-  assgnExpDt: string;
-  duration: string;
-  phone: string;
-  email: string;
-  newCourseAndAssignment: boolean;
-};

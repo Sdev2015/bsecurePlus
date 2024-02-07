@@ -6,7 +6,11 @@ import {
   getUserProfilesByGuid,
 } from "@/_features/apiServices";
 import { useStateContext } from "@/_features/context";
-import { getInvokeUrl } from "@/_features/helpers";
+import {
+  generateRandom4DigitNumber,
+  generateUuid,
+  getInvokeUrl,
+} from "@/_features/helpers";
 import {
   Box,
   Button,
@@ -21,6 +25,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
+import dayjs from "dayjs";
 import { NextPage } from "next";
 import { useEffect, useState } from "react";
 import CourseAndAssignment from "../course-and-assignment";
@@ -121,69 +126,73 @@ export const LauncherForm: NextPage = (): JSX.Element => {
     }
   };
 
-  const handleInvokeUrl = () => {
-    const { newCourseAssignment, selectedInstitute, selectedProfile } = state;
+  const handleInvokeUrl = async () => {
+    const {
+      selectedInstitute,
+      selectedProfile,
+      newCourse,
+      newAssignment,
+      selectedCourses,
+      selectedQuiz,
+    } = state;
 
-    if (!selectedInstitute) return;
-    console.log("handleInvokeUrl");
-    if (newCourseAssignment) {
+    if (!selectedInstitute || !selectedProfile) return;
+    let payload: GenerateInvokeUrlPayload = {
+      institute: selectedInstitute,
+      course: undefined,
+      quiz: undefined,
+      profile: selectedProfile,
+      courseId: "",
+      courseName: "",
+      assignmentId: "",
+      assignmentName: "",
+      studentId: "",
+      assgnDueDt: "",
+      assgnExpDt: "",
+      duration: "",
+      phone: "",
+      email: selectedProfile.email,
+      courseStartDate: "",
+      newCourseAndAssignment: false,
+    };
+    if (newCourse) {
       const {
-        newCourseAndAssignmentDetails: {
-          assignmentId,
-          assignmentTitle,
-          courseId,
-          courseName,
-        },
-        assignmentSchedulingDetails: { dueDate, duration, expDate },
-        otherDetails: { email, phone },
+        newCourseDetails: { name, startDate },
+        newAssignmentDetails,
       } = state;
-      const payload: GenerateInvokeUrlPayload = {
-        institute: selectedInstitute,
-        course: undefined,
-        quiz: undefined,
-        profile: selectedProfile,
-        courseId: courseId,
-        courseName: courseName,
-        assignmentId: assignmentId,
-        assignmentName: assignmentTitle,
-        studentId: "",
-        assgnDueDt: dueDate,
-        assgnExpDt: expDate,
-        duration: duration,
-        phone: phone,
-        email: email,
-        newCourseAndAssignment: newCourseAssignment,
-      };
-      const url = getInvokeUrl(payload);
-      window.open(url, "_blank");
+      const courseId = generateRandom4DigitNumber();
+      const quizId = generateRandom4DigitNumber();
+      payload.courseId = courseId.toString();
+      payload.courseName = name;
+      payload.studentId = selectedProfile.idUser;
+      payload.assignmentId = quizId.toString();
+      payload.assignmentName = newAssignmentDetails.name;
+      payload.assgnDueDt = newAssignmentDetails.startDate;
+      payload.assgnExpDt = newAssignmentDetails.endDate;
+      payload.duration = newAssignmentDetails.duration;
+      payload.newCourseAndAssignment = true;
+      payload.courseStartDate = startDate;
     } else {
-      const {
-        selectedCourses,
-        selectedQuiz,
-        selectedProfile,
-        assignmentSchedulingDetails: { dueDate, duration, expDate },
-        otherDetails: { email, phone },
-      } = state;
-      const payload: GenerateInvokeUrlPayload = {
-        institute: selectedInstitute,
-        course: selectedCourses,
-        quiz: selectedQuiz,
-        profile: selectedProfile,
-        courseId: "",
-        courseName: "",
-        assignmentId: "",
-        assignmentName: "",
-        studentId: "",
-        assgnDueDt: dueDate,
-        assgnExpDt: expDate,
-        duration: duration,
-        phone: phone,
-        email: email,
-        newCourseAndAssignment: newCourseAssignment,
-      };
-      const url = getInvokeUrl(payload);
-      window.open(url, "_blank");
+      if (newAssignment) {
+        const {
+          newAssignmentDetails: { name, startDate, endDate, duration },
+        } = state;
+        payload.course = selectedCourses;
+        payload.assignmentId = generateUuid();
+        payload.assignmentName = name;
+        payload.assgnDueDt = startDate;
+        payload.assgnExpDt = endDate;
+        payload.duration = duration;
+      } else {
+        payload.quiz = selectedQuiz;
+        payload.course = selectedCourses;
+        payload.courseStartDate =
+          selectedCourses?.startDate || dayjs().toISOString();
+      }
     }
+
+    const url = getInvokeUrl(payload, state);
+    window.open(url, "_blank");
   };
 
   useEffect(() => {
@@ -273,7 +282,8 @@ export const LauncherForm: NextPage = (): JSX.Element => {
             </Typography>
           ) : (
             <Typography variant="h6" color={"#008080"} fontWeight={700}>
-              Configuration for: {userFormType}
+              Configuration for:{" "}
+              {userFormType === "PROCTOR" ? "Instructor/ Manager" : "Student"}
             </Typography>
           )}
           {userFormType && (
@@ -283,6 +293,8 @@ export const LauncherForm: NextPage = (): JSX.Element => {
               onClick={(_) => {
                 if (userFormType === "PROCTOR") {
                   setUserFormType("STUDENT");
+                  dispatch({ type: "TOOGLE_NEW_ASSIGNMENT", payload: false });
+                  dispatch({ type: "TOOGLE_NEW_COURSE", payload: false });
                 } else {
                   setUserFormType("PROCTOR");
                 }
@@ -307,7 +319,7 @@ export const LauncherForm: NextPage = (): JSX.Element => {
               variant="outlined"
               sx={{
                 height: "150px",
-                width: "40%",
+                width: { xs: "100%", sm: "100%", md: "40%", lg: "40%" },
               }}
             >
               <CardActionArea
@@ -335,7 +347,7 @@ export const LauncherForm: NextPage = (): JSX.Element => {
               variant="outlined"
               sx={{
                 height: "150px",
-                width: "40%",
+                width: { xs: "100%", sm: "100%", md: "40%", lg: "40%" },
               }}
             >
               <CardActionArea
@@ -362,7 +374,7 @@ export const LauncherForm: NextPage = (): JSX.Element => {
           </Box>
         )}
         {userFormType === "PROCTOR" && <SelectInstructor />}
-        {userFormType && <CourseAndAssignment />}
+        {userFormType && <CourseAndAssignment formType={userFormType} />}
         {userFormType === "STUDENT" && <UrlCreator />}
         {userFormType === "PROCTOR" && (
           <Button
@@ -375,47 +387,6 @@ export const LauncherForm: NextPage = (): JSX.Element => {
           </Button>
         )}
       </Box>
-      {/* {state.selectedInstitute && (
-        <InstituteDetails institute={state.selectedInstitute} />
-      )} */}
-      {/* <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          width: "100%",
-          height: "100%",
-          justifyContent: "space-evenly",
-          flexWrap: "wrap",
-        }}
-      >
-        <Card sx={{ minWidth: "50%", height: "50%" }}>Instructor</Card>
-        <Card sx={{ minWidth: "50%", height: "50%" }}>Student</Card>
-      </Box> */}
-      {/* <Divider
-        variant="middle"
-        orientation="horizontal"
-        component={"area"}
-        sx={{ width: "100%" }}
-        color="#997a8d"
-      />
-      <CourseAndAssignment />
-      <Divider
-        variant="middle"
-        orientation="horizontal"
-        component={"area"}
-        sx={{ width: "100%" }}
-        color="#997a8d"
-      />
-      <InstructorAndManager />
-      <Divider
-        variant="middle"
-        orientation="horizontal"
-        component={"area"}
-        sx={{ width: "100%" }}
-        color="#997a8d"
-      />
-
-      <ProviderUrl createUrl={handleCreateUrl} invokeUrl={handleInvokeUrl} /> */}
     </Grid>
   );
 };

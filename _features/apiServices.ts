@@ -1,5 +1,7 @@
 import axios from "axios";
 import {
+  createCourseUrl,
+  createQuizUrl,
   createUserProfileOnlyUrl,
   getAllCoursesUrl,
   getAllInstitutesUrl,
@@ -28,13 +30,22 @@ const getUserProfilesByGuid = async (guid: string) => {
 };
 
 const createUserProfile = async (payload: UserProfile) => {
-  return await apiClient.post(createUserProfileOnlyUrl, {...payload})
-}
+  return await apiClient.post(createUserProfileOnlyUrl, { ...payload });
+};
+
+const createCourse = async (payload: CreateCourse) => {
+  return await apiClient.post(createCourseUrl, { ...payload });
+};
+
+const createQuiz = async (payload: CreateQuiz) => {
+  return await apiClient.post(createQuizUrl, { ...payload });
+};
 
 export {
-  getAllInstitutes,
+  createCourse,
+  createQuiz, createUserProfile, getAllInstitutes,
   getCoursesByGuid,
   getQuizzesByGuidCourseId,
-  getUserProfilesByGuid,
-  createUserProfile
+  getUserProfilesByGuid
 };
+

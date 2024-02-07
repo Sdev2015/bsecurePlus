@@ -2,6 +2,8 @@
 import dayjs from "dayjs";
 import React, { ReactNode, createContext, useContext, useReducer } from "react";
 
+const date = dayjs();
+
 const initialState: InitialState = {
   institute: undefined,
   courses: undefined,
@@ -30,9 +32,21 @@ const initialState: InitialState = {
   },
   students: [
     { email: "", phone: "", firstName: "", lastName: "", invokeUrl: "" },
-    { email: "", phone: "", firstName: "", lastName: "", invokeUrl: "" },
-    { email: "", phone: "", firstName: "", lastName: "", invokeUrl: "" },
   ],
+  newAssignment: false,
+  newAssignmentDetails: {
+    name: "",
+    startDate: date.toISOString(),
+    endDate: date.add(1, "months").toISOString(),
+    duration: "15",
+    url: "",
+  },
+  newCourse: false,
+  newCourseDetails: {
+    name: "",
+    startDate: date.toISOString(),
+    endDate: date.add(1, "months").toISOString(),
+  },
 };
 const StateContext = createContext<
   { state: InitialState; dispatch: React.Dispatch<ReducerActions> } | undefined
@@ -150,6 +164,14 @@ const stateReducer = (
       };
     case "ADD_UPDATE_STUDENT":
       return { ...state, students: action.payload };
+    case "TOOGLE_NEW_COURSE":
+      return { ...state, newCourse: action.payload };
+    case "TOOGLE_NEW_ASSIGNMENT":
+      return { ...state, newAssignment: action.payload };
+    case "ADD_NEW_COURSE":
+      return { ...state, newCourseDetails: action.payload };
+    case "ADD_NEW_ASSIGNMENT":
+      return { ...state, newAssignmentDetails: action.payload };
     default:
       return state;
   }
@@ -178,4 +200,3 @@ const ContextProvider: React.FC<CounterProviderProps> = ({ children }) => {
 };
 
 export { ContextProvider, StateContext, useStateContext };
-

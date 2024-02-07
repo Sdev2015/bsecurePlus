@@ -2,13 +2,8 @@
 
 import { useStateContext } from "@/_features/context";
 import {
-  FormControl,
-  FormHelperText,
   Grid,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
+  TextField
 } from "@mui/material";
 import { Box } from "@mui/system";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -105,37 +100,6 @@ const InstructorAndManager: NextPage = (): JSX.Element => {
             }}
           />
         </Grid>
-        <Grid item container xs={12} lg={6} justifyContent={"end"}>
-          <FormControl>
-            <InputLabel id="duration-test">Duration of test</InputLabel>
-            <Select
-              size="small"
-              labelId="duration-test"
-              fullWidth
-              slotProps={{
-                input: {
-                  width: "100%",
-                },
-              }}
-              sx={{ width: "100%" }}
-              id="duration-test-select"
-              value={state.assignmentSchedulingDetails.duration}
-              onChange={(event) => {
-                dispatch({
-                  type: "SET_ASSGN_DURATION",
-                  payload: event.target.value,
-                });
-              }}
-              label="Duration of test"
-            >
-              <MenuItem value={15}>15 minutes</MenuItem>
-              <MenuItem value={30}>30 minutes</MenuItem>
-              <MenuItem value={60}>60 minutes</MenuItem>
-              <MenuItem value={90}>90 minutes</MenuItem>
-            </Select>
-            <FormHelperText>Select duration of test in mins.</FormHelperText>
-          </FormControl>
-        </Grid>
         <Grid item container xs={12} lg={6}>
           <TextField
             size="small"
@@ -154,37 +118,6 @@ const InstructorAndManager: NextPage = (): JSX.Element => {
           />
         </Grid>
       </Grid>
-      {/* <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          width: "60%",
-          height: "100%",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 5,
-        }}
-      >
-        <TextField
-          size="small"
-          helperText="Enter your name"
-          variant="outlined"
-          label="Your Name"
-          disabled
-        />
-        <TextField
-          size="small"
-          helperText="Enter your email"
-          variant="outlined"
-          label="Your Email"
-          disabled
-        />
-        <FormControlLabel
-          control={<Checkbox defaultChecked />}
-          label="Copy email to me"
-          disabled
-        />
-      </Box> */}
     </Box>
   );
 };

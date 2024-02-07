@@ -6,10 +6,15 @@ const getUserProfilesByGuidUrl = (guid: string) =>
   `/lti-user-profile-guid/${guid}`;
 const createUserProfileOnlyUrl = "/saveLtiStudentProfileOnly";
 
+const createCourseUrl = "/lti-course";
+
+const createQuizUrl = "/lti-quiz";
+
 export {
-  getAllCoursesUrl,
+  createCourseUrl,
+  createQuizUrl, createUserProfileOnlyUrl, getAllCoursesUrl,
   getAllInstitutesUrl,
   getAllQuizzesByGuidCourseIdUrl,
-  getUserProfilesByGuidUrl,
-  createUserProfileOnlyUrl,
+  getUserProfilesByGuidUrl
 };
+
